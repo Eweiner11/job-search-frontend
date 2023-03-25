@@ -1,6 +1,23 @@
 $primary-color: white;
 $bg: black;
-h1 {
-  color: $primary-color;
-  background-color: $bg;
+body{
+  margin:0;
+  padding:0;
+
+}
+.app{
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
+  font-family: 'robot';
+ 
+}
+
+@font-face {
+  font-family: 'roboto';
+  src: url('../src/assets/Roboto-Medium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }
