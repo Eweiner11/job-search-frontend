@@ -2,7 +2,9 @@
 import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Button, Card } from '@material-ui/core';
-import { signInWithEmailAndPassword, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, linkWithCredential, fetchSignInMethodsForEmail } from "firebase/auth";
+import { FaGoogle } from 'react-icons/fa';
+import { FaFacebook } from 'react-icons/fa';
 import { auth } from '../../services/firebase';
 import { toast } from 'react-toastify';
 import { Link } from "react-router-dom";
@@ -25,6 +27,7 @@ const RegisterForm: React.FC = () => {
                 // Signed in 
                 const user = userCredential.user;
                 toast.success('Successfully logged in!')
+       
 
             })
             .catch((error) => {
@@ -36,36 +39,50 @@ const RegisterForm: React.FC = () => {
                 toast.error(errorLookup[errorMessage] || 'Failed to log in')
             });
     };
+    const signInWithProvider = async (provider: any) => {
+        try {
+          const result = await signInWithPopup(auth, provider);
+          const user = result.user;
+          toast.success(`Successfully logged in with ${provider.providerId}!`);
+        } catch (error:any) {
+          if (error.code === 'auth/account-exists-with-different-credential') {
+            return handleLinkFlow(provider);
+          } else {
+            let errorMessage = error.message;
+            toast.error(errorMessage || `Failed to log in with ${provider.providerId}`);
+          }
+        }
+      };
+
+    const handleLinkFlow = async (provider: any) => {
+        try {
+          const result:any = await signInWithPopup(auth, provider);
+          const user:any = result.user;
+      
+          const methods = await fetchSignInMethodsForEmail(auth, user.email);
+          if (methods.includes(provider.providerId)) {
+            await linkWithCredential(user, result?.credential);
+            toast.success(`Successfully linked ${provider.providerId} account!`);
+          } else {
+            throw new Error(`No existing account found for ${provider.providerId}`);
+          }
+        } catch (error:any) {
+          let errorMessage = error.message;
+          toast.error(errorMessage || `Failed to link ${provider.providerId} account`);
+        }
+      };
+
     const signInWithGoogle = () => {
         const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider)
-            .then((result) => {
-                const credential = GoogleAuthProvider.credentialFromResult(result);
-                const token = credential?.accessToken;
-                const user = result.user;
-                toast.success('Successfully logged in with Google!')
-            })
-            .catch((error) => {
-                let errorMessage = error.message;
-                toast.error(errorMessage || 'Failed to log in with Google')
-            });
+        signInWithProvider(provider);
     }
 
     const signInWithFacebook = () => {
         const provider = new FacebookAuthProvider();
-        signInWithPopup(auth, provider)
-            .then((result) => {
-                // The signed-in user info.
-                const user = result.user;
-                console.log(user)
-                toast.success('Successfully logged in with Facebook!');
-            })
-            .catch((error) => {
-                let errorMessage = error.message;
-                toast.error(errorMessage || 'Failed to log in');
-            });
+        signInWithProvider(provider);
     }
 
+    
     
     return (
         <>
@@ -114,15 +131,20 @@ const RegisterForm: React.FC = () => {
                                 />
                             )}
                         />
+                        <div style = {{ marginTop:'10px'}}>
+                         <Link to={'/password-reset'} style = {{textDecoration:'none'}} >Forgot Password?</Link>
+                         </div>
+                    </div>
+                    <div>
+                    <Button startIcon = {<FaGoogle/>} variant="contained" color="default" onClick={signInWithGoogle} style={{ width: '49%', marginTop: '10px',marginRight:'2%', fontWeight:'540' }}> Google</Button>
+                    <Button startIcon = {<FaFacebook/>} variant="contained" color="primary" onClick={signInWithFacebook} style={{ width: '49%', marginTop: '10px', fontWeight:'540' }}>Facebook</Button>
                     </div>
                     <Button type="submit" variant="contained" color="primary" style={{ width: '100%', marginTop: '10px' }}>Log in</Button>
-                    <Button variant="contained" color="default" onClick={signInWithGoogle} style={{ width: '100%', marginTop: '10px' }}>Log in with Google</Button>
-                    <Button variant="contained" color="primary" onClick={signInWithFacebook} style={{ width: '100%', marginTop: '10px' }}>Log in with Facebook</Button>
+
                 </form>
                 <br></br>
-                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                    <Link to={'/register'}>Register</Link>
-                    <Link to={'/password-reset'}>Forgot Password</Link>
+                <div style={{ display: 'flex', justifyContent:'center', marginTop: '10px' }}>
+                    <Link style = {{textDecoration:'none'}} to={'/register'}>Create Account</Link>
                 </div>
 
             </Card>

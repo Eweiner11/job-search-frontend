@@ -67,7 +67,6 @@ const PasswordResetForm: React.FC = () => {
                 <br></br>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                 <Link to={'/login'}>Log In</Link>
-                <Link to={'/register'}>Register</Link>
                 </div>
 
             </Card>

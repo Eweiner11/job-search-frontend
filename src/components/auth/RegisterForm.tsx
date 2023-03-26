@@ -114,12 +114,11 @@ const RegisterForm: React.FC = () => {
                             )}
                         />
                     </div>
-                    <Button type="submit" variant="contained" color="primary" style={{ width: '100%', marginTop: '10px' }}>Create Account</Button>
+                    <Button type="submit" variant="contained" color="primary" style={{ width: '100%', marginTop: '5px' }}>Create Account</Button>
                 </form>
                 <br></br>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                 <Link to={'/login'}>Login</Link>
-                <Link to={'/password-reset'}>Forgot Password</Link>
                 </div>
             </Card>
         </>
